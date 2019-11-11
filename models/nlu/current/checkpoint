@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/gimmi/Downloads/models/nlu/current/component_5_EmbeddingIntentClassifier.ckpt"
+all_model_checkpoint_paths: "/Users/gimmi/Downloads/models/nlu/current/component_5_EmbeddingIntentClassifier.ckpt"

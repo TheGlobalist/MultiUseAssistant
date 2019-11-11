@@ -1,0 +1,93 @@
+{
+  "rasa_nlu_data": {
+    "common_examples": [
+      {
+        "intent": "notizie",
+        "text": "ultime notizie"
+      },
+      {
+        "intent": "notizie",
+        "text": "ultime"
+      },
+      {
+        "intent": "notizie",
+        "text": "news"
+      },
+      {
+        "intent": "notizie",
+        "text": "notizie"
+      },
+      {
+        "intent": "notizie",
+        "text": "news sulla squadra"
+      },
+      {
+        "intent": "calendario",
+        "text": "quando gioca la prossima partita?"
+      },
+      {
+        "intent": "calendario",
+        "text": "quand'è la prossima partita?"
+      },
+      {
+        "intent": "calendario",
+        "text": "prossima partita"
+      },
+      {
+        "intent": "calendario",
+        "text": "prossima partita di campionato"
+      },
+      {
+        "intent": "calendario",
+        "text": "quando riprende il campionato?"
+      },
+      {
+        "intent": "calendario",
+        "text": "prossima  partita di coppa?"
+      },
+      {
+        "intent": "informazione",
+        "text": "ho bisogno di un'informazione"
+      },
+      {
+        "intent": "informazione",
+        "text": "informazioni"
+      },
+      {
+        "intent": "informazione",
+        "text": "ho bisogno"
+      },
+      {
+        "intent": "funzionamentoBot",
+        "text": "come funziona?"
+      },
+      {
+        "intent": "funzionamentoBot",
+        "text": "come funziona il bot?"
+      },
+      {
+        "intent": "funzionamentoBot",
+        "text": "qual è il funzionamento?"
+      },
+      {
+        "intent": "saluto",
+        "text": "Ciao"
+      },
+      {
+        "intent": "saluto",
+        "text": "Bella"
+      },
+      {
+        "intent": "saluto",
+        "text": "Oh"
+      },
+      {
+        "intent": "saluto",
+        "text": "Aò"
+      }
+    ],
+    "regex_features": [],
+    "lookup_tables": [],
+    "entity_synonyms": []
+  }
+}
