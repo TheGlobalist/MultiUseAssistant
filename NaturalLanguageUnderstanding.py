@@ -11,7 +11,7 @@ class NaturalLanguageUnderstandingModule:
         model_directory = trainer.persist("./models/nlu", fixed_model_name="current")
 
     def predictIntention(self, sentence):
-        predizione_intento = self.interprete.parse(sentence)['intent']
+        predizione_intento = self.interpreter.parse(sentence)['intent']
         confidenza = predizione_intento['confidence']
         intent = predizione_intento['name']
         toReturn = {'confidenza': confidenza, 'intento': intent}

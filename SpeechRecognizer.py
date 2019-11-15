@@ -6,6 +6,6 @@ class SpeechRecognizer:
 
     def recognize(self):
         with sr.Microphone() as source:
-            audio = r.listen(source)
-        recognized_sentence = r.recognize_google(audio, language="it-IT")
+            audio = self.__recognizer.listen(source)
+        recognized_sentence = self.__recognizer.recognize_google(audio, language="it-IT")
         return recognized_sentence
