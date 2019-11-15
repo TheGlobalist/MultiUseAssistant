@@ -1,10 +1,8 @@
-## intent:notizie
-- ultime notizie
-- ultime
-- news
-- notizie
-- news sulla squadra
-
+## intent:musica
+- Riproduci 
+- Suona 
+- Fai partire
+- Riproduzione
 
 ## intent:calendario
 - quando gioca la prossima partita?

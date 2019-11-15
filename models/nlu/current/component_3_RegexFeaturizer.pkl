@@ -1,0 +1,6 @@
+[
+    {
+        "name": "preposizione",
+        "pattern": "(?i)(\\bdei\\b|\\bdi\\b)"
+    }
+]

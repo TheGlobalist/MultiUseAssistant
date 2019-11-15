@@ -2,6 +2,8 @@
     "language": "it_core_news_sm",
     "pipeline": [
         {
+            "intent_tokenization_flag": false,
+            "intent_split_symbol": "_",
             "case_sensitive": true,
             "name": "WhitespaceTokenizer",
             "class": "rasa.nlu.tokenizers.whitespace_tokenizer.WhitespaceTokenizer"
@@ -51,6 +53,7 @@
             "class": "rasa.nlu.extractors.entity_synonyms.EntitySynonymMapper"
         },
         {
+            "use_shared_vocab": false,
             "analyzer": "word",
             "token_pattern": "(?u)\\b\\w\\w+\\b",
             "strip_accents": null,
@@ -68,36 +71,55 @@
             "class": "rasa.nlu.featurizers.count_vectors_featurizer.CountVectorsFeaturizer"
         },
         {
+            "use_shared_vocab": false,
+            "analyzer": "char_wb",
+            "token_pattern": "(?u)\\b\\w\\w+\\b",
+            "strip_accents": null,
+            "stop_words": null,
+            "min_df": 1,
+            "max_df": 1.0,
+            "min_ngram": 1,
+            "max_ngram": 4,
+            "max_features": null,
+            "lowercase": true,
+            "OOV_token": null,
+            "OOV_words": [],
+            "name": "CountVectorsFeaturizer",
+            "file": "component_5_CountVectorsFeaturizer.pkl",
+            "class": "rasa.nlu.featurizers.count_vectors_featurizer.CountVectorsFeaturizer"
+        },
+        {
             "hidden_layers_sizes_a": [
                 256,
                 128
             ],
             "hidden_layers_sizes_b": [],
+            "share_hidden_layers": false,
             "batch_size": [
                 64,
                 256
             ],
+            "batch_strategy": "balanced",
             "epochs": 300,
+            "random_seed": null,
             "embed_dim": 20,
+            "num_neg": 20,
+            "similarity_type": "auto",
+            "loss_type": "softmax",
             "mu_pos": 0.8,
             "mu_neg": -0.4,
-            "similarity_type": "cosine",
-            "num_neg": 20,
             "use_max_sim_neg": true,
-            "random_seed": null,
+            "scale_loss": true,
             "C2": 0.002,
             "C_emb": 0.8,
             "droprate": 0.2,
-            "intent_tokenization_flag": false,
-            "intent_split_symbol": "_",
-            "evaluate_every_num_epochs": 10,
-            "evaluate_on_num_examples": 1000,
+            "evaluate_every_num_epochs": 20,
+            "evaluate_on_num_examples": 0,
             "name": "EmbeddingIntentClassifier",
-            "file": "component_5_EmbeddingIntentClassifier",
+            "file": "component_6_EmbeddingIntentClassifier",
             "class": "rasa.nlu.classifiers.embedding_intent_classifier.EmbeddingIntentClassifier"
         }
     ],
-    "training_data": "training_data.json",
-    "trained_at": "20190824-173633",
-    "rasa_version": "1.2.4"
+    "trained_at": "20191115-192252",
+    "rasa_version": "1.4.3"
 }

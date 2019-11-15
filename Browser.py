@@ -13,8 +13,10 @@ import platform
 
 class Browser:
     def __init__(self):
-        pathForDriver = self.findPathForDriver()
-        self.__browser = webdriver.Chrome(executable_path=pathForDriver)
+        self.__pathForDriver = self.findPathForDriver()
+
+    def __initBrowser(self):
+        self.__browser = webdriver.Chrome(executable_path=self.__pathForDriver)
 
     def findPathForDriver(self):
         lookfor = "chromedriver.exe" if platform.system() == "Windows" else "chromedriver"
@@ -24,5 +26,15 @@ class Browser:
                 return join(root, lookfor)
 
     def navigate_music(self, analyzedString):
-        self.__browser.get("https://www.youtube.com/results?search_query="+analyzedString)
+        if not hasattr(self,"__browser"):
+            self.__initBrowser()
+        toSend = analyzedString.split(" ")[1:]
+        #TODO Trattare caso in cui la canzone ha nome composto (es.: "The Dark Side" dei Muse)
+        self.__browser.get("https://www.youtube.com/results?search_query="+toSend[0] + "+" + toSend[2])
         time.sleep(1)
+        #TODO questo è l'Xpath "//ytd-video-renderer"[0]
+        self.__browser.find_element_by_xpath("//ytd-video-renderer").click()
+
+
+    def close(self):
+        self.__browser.close()
