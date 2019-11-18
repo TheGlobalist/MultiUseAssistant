@@ -49,6 +49,8 @@ def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, im_width, i
             cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
 
 detector, sess = load_model()
+fist_detector = cv2.CascadeClassifier('models/fist.xml')
+
 threshold = 0.2
 num_hands_detect = 2
 
@@ -59,6 +61,7 @@ im_width, im_height = (camera.get(3), camera.get(4))
 
 t1 = time.time()
 f = 0
+
 while True:
     _, frame = camera.read()
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -67,6 +70,13 @@ while True:
 
     # draw bounding boxes on frame
     draw_box_on_image(num_hands_detect, threshold, scores, boxes, im_width, im_height, frame)
+
+    # fists detection
+    fists = fist_detector.detectMultiScale(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
+                                           flags=cv2.CASCADE_SCALE_IMAGE)
+
+    for fX, fY, fW, fH in fists:
+        cv2.rectangle(frame, (fX, fY), (fX + fW, fY + fH), (0, 0, 255), 2)
 
     t2 = time.time()
     if t2 - t1 >= 1:
@@ -77,7 +87,7 @@ while True:
         f += 1
 
     try:
-        cv2.putText(frame, 'FPS: ' + str(fps), (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0))
+        cv2.putText(frame, 'FPS: ' + str(fps), (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
     except:
         pass
 
