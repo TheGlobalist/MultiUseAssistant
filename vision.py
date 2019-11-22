@@ -40,8 +40,6 @@ def detect_objects(image_np, detection_graph, sess):
     return np.squeeze(boxes), np.squeeze(scores)
 
 def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, im_width, im_height, image_np):
-    a = []
-    k = 0
     for i in range(num_hands_detect):
         if (scores[i] > score_thresh):
             (left, right, top, bottom) = (boxes[i][1] * im_width, boxes[i][3] * im_width,
@@ -49,25 +47,6 @@ def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, im_width, i
             p1 = (int(left), int(top))
             p2 = (int(right), int(bottom))
             cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
-            if k == 0:
-                a.append((p1[0] + p2[0]) // 2)
-                a.append((p1[1] + p2[1]) // 2)
-            k += 1
-
-            #cv2.circle(image_np, ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), 3, (255, 0, 0))
-    return a
-
-
-def check_movement(sequence, frame, distance=30, y_limit=20):
-    sequence = np.array(sequence)
-    x = sequence[:, 0]
-    y = sequence[:, 1]
-    if len(x[x > x[0]]) == FRAMES - 1 and abs(x[0] - x[-1]) >= distance and max(abs(y - y[0])) <= y_limit:
-        # mi sto muovendo a sx
-        cv2.putText(frame, 'Sinistra', (400, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
-    elif len(x[x < x[0]]) == FRAMES - 1 and abs(x[0] - x[-1]) >= distance and max(abs(y - y[0])) <= y_limit:
-        # mi sto muovendo a dx
-        cv2.putText(frame, 'Destra', (400, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
 detector, sess = load_model()
 fist_detector = cv2.CascadeClassifier('models/fist.xml')
@@ -82,10 +61,6 @@ im_width, im_height = (camera.get(3), camera.get(4))
 
 t1 = time.time()
 f = 0
-c = 0
-fists_counter = 0
-seq = []
-FRAMES = 4
 
 while True:
     _, frame = camera.read()
@@ -94,29 +69,12 @@ while True:
     boxes, scores = detect_objects(frame, detector, sess)
 
     # draw bounding boxes on frame
-    center = draw_box_on_image(num_hands_detect, threshold, scores, boxes, im_width, im_height, frame)
-
-    if center:
-        c = 0
-        seq.append(center)
-        if len(seq) == FRAMES:
-            check_movement(seq, frame)
-            seq.pop(0)
-    else:
-        c += 1
-        if c == 3:
-            seq = []
+    draw_box_on_image(num_hands_detect, threshold, scores, boxes, im_width, im_height, frame)
 
     # fists detection
-    fists = fist_detector.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
+    fists = fist_detector.detectMultiScale(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
                                            flags=cv2.CASCADE_SCALE_IMAGE)
-    if fists:
-        fists_counter += 1
 
-    if fists_counter >= 5 :
-        #TODO Detection per chiudere il browser
-        pass
-    print(fists)
     for fX, fY, fW, fH in fists:
         cv2.rectangle(frame, (fX, fY), (fX + fW, fY + fH), (0, 0, 255), 2)
 
@@ -140,3 +98,4 @@ while True:
 
 camera.release()
 cv2.destroyAllWindows()
+
