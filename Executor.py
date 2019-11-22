@@ -80,6 +80,8 @@ while True:
         dizionario_confidenza = NLU.predictIntention(sentence)
         #Serie di if-elif per decidere come gestire le operazioni da fargli fare in base a quello che si dice
         if dizionario_confidenza['intento'] == 'musica':
+            sentence = NLU.tag_sentence(sentence)
+            sentence = NLU.get_possible_tags_to_query_uri(sentence)
             browser.navigate_music(sentence)
     ########################## OPENCV PART ##########################################
 

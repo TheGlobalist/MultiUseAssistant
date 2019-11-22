@@ -28,9 +28,7 @@ class Browser:
     def navigate_music(self, analyzedString):
         if not hasattr(self,"__browser"):
             self.__initBrowser()
-        toSend = analyzedString.split(" ")[1:]
-        #TODO Trattare caso in cui la canzone ha nome composto (es.: "The Dark Side" dei Muse)
-        self.__browser.get("https://www.youtube.com/results?search_query="+toSend[0] + "+" + toSend[2])
+        self.__browser.get("https://www.youtube.com/results?search_query="+analyzedString>
         time.sleep(1)
         #TODO questo è l'Xpath "//ytd-video-renderer"[0]
         self.__browser.find_element_by_xpath("//ytd-video-renderer").click()
