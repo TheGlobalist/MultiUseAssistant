@@ -16,7 +16,6 @@ sr = SpeechRecognizer()
 speech_engine = SpeechEngine()
 browser = Browser()
 open_cv_wrapper = GestureRecognitor()
-NN = DNN4GestureRecognition()
 #os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="GKey.json"
 #client = vision.ImageAnnotatorClient()
 #stopper = 0
@@ -102,7 +101,7 @@ while True:
         seq.append(center)
         if len(seq) == 5:
             movimento = open_cv_wrapper.check_movement(seq, frame)
-            #print(movimento)
+            print(movimento)
             #TODO Logica da usare per il movimento
             seq.pop(0)
         else:
@@ -113,13 +112,13 @@ while True:
     # fists detection
     fists = fist_detector.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
                                            flags=cv2.CASCADE_SCALE_IMAGE)
-    #print(fists, type(fists))
+    print(fists, type(fists))
     if not type(fists) == tuple and fists.any():
         fist_counter += 1
     else:
         fist_counter = 0
     if fist_counter >= 5:
-        #print("PUGNO")
+        print("PUGNO")
         #TODO Detection per chiudere il browser
         pass
     cv2.imshow('Hand Detector', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
