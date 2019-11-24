@@ -3,13 +3,11 @@ from SpeechRecognizer import SpeechRecognizer
 from SpeechEngine import SpeechEngine
 from Browser import Browser
 from GestureRecognition.ContinuousGesturePredictor import GestureRecognitor
-from GestureRecognition.DNNGesture import DNN4GestureRecognition
 import cv2
-import os
-import io
-from PIL import Image
-from google.cloud import vision
-from google.cloud.vision import types
+import time
+import requests
+import json
+
 
 NLU = NaturalLanguageUnderstandingModule()
 sr = SpeechRecognizer()
@@ -28,54 +26,12 @@ num_hands_detect = 1
 
 camera = cv2.VideoCapture(0)
 im_width, im_height = (camera.get(3), camera.get(4))
-
-"""
-while open_cv_wrapper.num_frames < 30:
-    ########################## OPENCV PART ##########################################
-
-    # Catturo un'istantanea dalla webcam
-    (grabbed, frame) = open_cv_wrapper.get_camera().read()
-    # Faccio resize dell'immagine
-    frame = open_cv_wrapper.resizer(frame)
-
-    # Flip
-    frame = open_cv_wrapper.flip(frame)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    coppia_punti = []
-    boxes, scores = open_cv_wrapper.detect_objects(frame, detector, sess)
-    fists = None
-    if scores[0] < 0.2:
-        # fists detection
-        fists = fist_detector.detectMultiScale(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), scaleFactor=1.1, minNeighbors=5,
-                                               minSize=(30, 30),
-                                               flags=cv2.CASCADE_SCALE_IMAGE)
-
-    coppia_punti = open_cv_wrapper.points_for_roi(boxes, scores, im_width, im_height)
-    try:
-        roi = frame[
-              coppia_punti[0][0][1]:coppia_punti[0][1][1],
-              coppia_punti[0][0][0]:coppia_punti[0][1][0]
-              ]
-    except IndexError:
-        continue
-    # success, encoded_image = cv2.imencode('.png', frame)
-
-    # image = types.Image(content=encoded_image.tobytes())
-    clone = frame.copy()
-
-    # Prendo altezza e larghezza
-
-    gray = open_cv_wrapper.converter_and_gaussian(roi)
-    open_cv_wrapper.run_avg(gray, im_height)
-    open_cv_wrapper.increase_num_frames()
-"""
 fist_counter = 0
 c = 0
 seq = []
 speech_engine.say("Buongiorno e benvenuto in emGimBot! Prossimamente potrai anche chiedermi come funziono con 'Aiuto'. Intanto, chiedimi una canzone da riprodurre")
 while True:
-    #sentence = sr.recognize()
-    sentence = ""
+    sentence = sr.recognize()
     if not sentence == "":
         dizionario_confidenza = NLU.predictIntention(sentence)
         #Serie di if-elif per decidere come gestire le operazioni da fargli fare in base a quello che si dice
@@ -83,6 +39,21 @@ while True:
             sentence = NLU.tag_sentence(sentence)
             sentence = NLU.get_possible_tags_to_query_uri(sentence)
             browser.navigate_music(sentence)
+        if dizionario_confidenza['intento'] == 'aiuto':
+            speech_engine.say("Sono un assistente vocale a cui puoi chiedere le seguenti cose: musica da riprodurre, le ultime notizie, il meteo e come funziono! Inoltre supporto anche le gesture! Sono forte, no?")
+            continue
+        if dizionario_confidenza['intento'] == 'notizie':
+            notizie = requests.get('https://newsapi.org/v2/top-headlines?country=it&apiKey=f896205045cc40cb947d864b5e2df8f9')
+            notizie = json.loads(notizie.text)['articles'][0:5]
+            speech_engine.say("Ti leggo i titoli delle ultime 5 notizie!")
+            for notizia in notizie:
+                speech_engine.say("Da " + notizia['source']['name'])
+                time.sleep(1)
+                speech_engine.say(notizia['title'])
+            continue
+        
+
+
     ########################## OPENCV PART ##########################################
 
     #Catturo un'istantanea dalla webcam
@@ -123,6 +94,5 @@ while True:
         print("PUGNO")
         #TODO Detection per chiudere il browser
         pass
-    cv2.imshow('Hand Detector', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 camera.release()
 cv2.destroyAllWindows()

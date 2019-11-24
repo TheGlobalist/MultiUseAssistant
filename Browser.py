@@ -28,7 +28,7 @@ class Browser:
     def navigate_music(self, analyzedString):
         if not hasattr(self,"__browser"):
             self.__initBrowser()
-        self.__browser.get("https://www.youtube.com/results?search_query="+analyzedString>
+        self.__browser.get("https://www.youtube.com/results?search_query="+analyzedString)
         time.sleep(1)
         #TODO questo è l'Xpath "//ytd-video-renderer"[0]
         self.__browser.find_element_by_xpath("//ytd-video-renderer").click()

@@ -20,8 +20,7 @@ class NaturalLanguageUnderstandingModule:
         return toReturn
 
     def tag_sentence(self, sentence):
-        return [tuple(elemento.split("\t")) for elemento in self.tagger.TagText("Fai partire The Dark Side dei Muse")]
-
+        return [tuple(elemento.split("\t")) for elemento in self.tagger.TagText(sentence)]
     def get_possible_tags_to_query_uri(self, tags):
         tmp =  [elemento[0] for elemento in tags if 'VER' not in elemento[1]]
         return '+'.join(tmp)
