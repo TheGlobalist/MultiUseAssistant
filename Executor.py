@@ -8,15 +8,11 @@ import time
 import requests
 import json
 
-
 NLU = NaturalLanguageUnderstandingModule()
 sr = SpeechRecognizer()
 speech_engine = SpeechEngine()
 browser = Browser()
 open_cv_wrapper = GestureRecognitor()
-#os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="GKey.json"
-#client = vision.ImageAnnotatorClient()
-#stopper = 0
 
 detector, sess = open_cv_wrapper.load_model()
 fist_detector = cv2.CascadeClassifier('models/fist.xml')
@@ -29,39 +25,42 @@ im_width, im_height = (camera.get(3), camera.get(4))
 fist_counter = 0
 c = 0
 seq = []
-speech_engine.say("Buongiorno e benvenuto in emGimBot! Prossimamente potrai anche chiedermi come funziono con 'Aiuto'. Intanto, chiedimi una canzone da riprodurre")
+speech_engine.say(
+    "Buongiorno e benvenuto in emGimBot! Prossimamente potrai anche chiedermi come funziono con 'Aiuto'. Intanto, chiedimi una canzone da riprodurre")
 while True:
-    sentence = sr.recognize()
-    if not sentence == "":
-        dizionario_confidenza = NLU.predictIntention(sentence)
-        #Serie di if-elif per decidere come gestire le operazioni da fargli fare in base a quello che si dice
-        if dizionario_confidenza['intento'] == 'musica':
-            sentence = NLU.tag_sentence(sentence)
-            sentence = NLU.get_possible_tags_to_query_uri(sentence)
-            browser.navigate_music(sentence)
-        if dizionario_confidenza['intento'] == 'aiuto':
-            speech_engine.say("Sono un assistente vocale a cui puoi chiedere le seguenti cose: musica da riprodurre, le ultime notizie, il meteo e come funziono! Inoltre supporto anche le gesture! Sono forte, no?")
-            continue
-        if dizionario_confidenza['intento'] == 'notizie':
-            notizie = requests.get('https://newsapi.org/v2/top-headlines?country=it&apiKey=f896205045cc40cb947d864b5e2df8f9')
-            notizie = json.loads(notizie.text)['articles'][0:5]
-            speech_engine.say("Ti leggo i titoli delle ultime 5 notizie!")
-            for notizia in notizie:
-                speech_engine.say("Da " + notizia['source']['name'])
-                time.sleep(1)
-                speech_engine.say(notizia['title'])
-            continue
-        
-
+    if not browser.is_active():
+        sentence = sr.recognize()
+        if not sentence == "":
+            dizionario_confidenza = NLU.predictIntention(sentence)
+            if dizionario_confidenza['intento'] == 'musica':
+                sentence = NLU.tag_sentence(sentence)
+                sentence = NLU.get_possible_tags_to_query_uri(sentence)
+                browser.navigate_music(sentence)
+            if dizionario_confidenza['intento'] == 'aiuto':
+                speech_engine.say(
+                    "Sono un assistente vocale a cui puoi chiedere le seguenti cose: musica da riprodurre, le ultime notizie, il meteo e come funziono! Inoltre supporto anche le gesture! Sono forte, no?")
+                continue
+            if dizionario_confidenza['intento'] == 'notizie':
+                speech_engine.set_speed(175)  # Meglio rallentarlo
+                notizie = requests.get(
+                    'https://newsapi.org/v2/top-headlines?country=it&apiKey=f896205045cc40cb947d864b5e2df8f9')
+                notizie = json.loads(notizie.text)['articles'][0:5]
+                speech_engine.say("Ti leggo i titoli delle ultime 5 notizie!")
+                for notizia in notizie:
+                    speech_engine.say("Fonte: " + notizia['source']['name'])
+                    time.sleep(1)
+                    speech_engine.say(notizia['title'])
+                speech_engine.set_speed(200)
+                continue
 
     ########################## OPENCV PART ##########################################
 
-    #Catturo un'istantanea dalla webcam
-    (grabbed, frame) = open_cv_wrapper.get_camera().read()
-    #Faccio resize dell'immagine
+    # Catturo un'istantanea dalla webcam
+    (grabbed, frame) = camera.read()
+    # Faccio resize dell'immagine
     frame = open_cv_wrapper.resizer(frame)
 
-    #Flip
+    # Flip
     frame = open_cv_wrapper.flip(frame)
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -75,7 +74,7 @@ while True:
         if len(seq) == 5:
             movimento = open_cv_wrapper.check_movement(seq, frame)
             print(movimento)
-            #TODO Logica da usare per il movimento
+            browser.movement_detection(movimento)
             seq.pop(0)
         else:
             c += 1
@@ -92,7 +91,10 @@ while True:
         fist_counter = 0
     if fist_counter >= 5:
         print("PUGNO")
-        #TODO Detection per chiudere il browser
+        is_browser_active = browser.is_active()
+        if is_browser_active is not None and is_browser_active:
+            browser.close()
+
         pass
 camera.release()
 cv2.destroyAllWindows()

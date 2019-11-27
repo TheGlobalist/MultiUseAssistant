@@ -14,9 +14,17 @@ import platform
 class Browser:
     def __init__(self):
         self.__pathForDriver = self.findPathForDriver()
+        self.__active = False
 
     def __initBrowser(self):
-        self.__browser = webdriver.Chrome(executable_path=self.__pathForDriver)
+        if not hasattr(self,"__browser") or self.__browser is None:
+            self.__browser = webdriver.Chrome(executable_path=self.__pathForDriver)
+            self.__active = True
+        else:
+            pass
+
+    def is_active(self):
+        return self.__active
 
     def findPathForDriver(self):
         lookfor = "chromedriver.exe" if platform.system() == "Windows" else "chromedriver"
@@ -26,7 +34,7 @@ class Browser:
                 return join(root, lookfor)
 
     def navigate_music(self, analyzedString):
-        if not hasattr(self,"__browser"):
+        if not hasattr(self,"__browser") or self.__browser is None:
             self.__initBrowser()
         self.__browser.get("https://www.youtube.com/results?search_query="+analyzedString)
         time.sleep(1)
@@ -36,3 +44,12 @@ class Browser:
 
     def close(self):
         self.__browser.close()
+        self.__browser = None
+        self.__active = False
+
+    def movement_detection(self,movement):
+        if movement == "DX":
+            self.__browser.find_element_by_xpath("//*[@class='ytp-next-button ytp-button']").click()
+        else:
+            self.__browser.execute_script("window.history.go(-1)")
+        time.sleep(1)
