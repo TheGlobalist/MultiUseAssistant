@@ -62,10 +62,10 @@ class GestureRecognitor:
         y = sequence[:, 1]
         if len(x[x > x[0]]) == 4 and abs(x[0] - x[-1]) >= distance and max(abs(y - y[0])) <= y_limit:
             # mi sto muovendo a sx
-            return "SX"
+            return "DX"
         elif len(x[x < x[0]]) == 4 and abs(x[0] - x[-1]) >= distance and max(abs(y - y[0])) <= y_limit:
             # mi sto muovendo a dx
-            return "DX"
+            return "SX"
         return None
 
     def draw_box_on_image(self,num_hands_detect, score_thresh, scores, boxes, im_width, im_height, image_np):

@@ -3,6 +3,7 @@
 - Suona 
 - Fai partire
 - Riproduzione
+- Avvia
 
 ## intent:aiuto
 

@@ -19,22 +19,24 @@ fist_detector = cv2.CascadeClassifier('models/fist.xml')
 
 threshold = 0.2
 num_hands_detect = 1
-
+f = 0
 camera = cv2.VideoCapture(0)
 im_width, im_height = (camera.get(3), camera.get(4))
 fist_counter = 0
 c = 0
+t1 = time.time()
 seq = []
+speech_engine.set_speed(175)
 speech_engine.say(
     "Buongiorno e benvenuto in emGimBot! Prossimamente potrai anche chiedermi come funziono con 'Aiuto'. Intanto, chiedimi una canzone da riprodurre")
 while True:
     if not browser.is_active():
-        sentence = sr.recognize()
+        #sentence = sr.recognize
+        sentence = "Dammi le ultime notizie"
         if not sentence == "":
             dizionario_confidenza = NLU.predictIntention(sentence)
             if dizionario_confidenza['intento'] == 'musica':
-                sentence = NLU.tag_sentence(sentence)
-                sentence = NLU.get_possible_tags_to_query_uri(sentence)
+                sentence = NLU.format_query_uri(sentence)
                 browser.navigate_music(sentence)
             if dizionario_confidenza['intento'] == 'aiuto':
                 speech_engine.say(
@@ -82,8 +84,25 @@ while True:
                 seq = []
 
     # fists detection
-    fists = fist_detector.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
+    fists = fist_detector.detectMultiScale(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
                                            flags=cv2.CASCADE_SCALE_IMAGE)
+
+    for fX, fY, fW, fH in fists:
+        cv2.rectangle(frame, (fX, fY), (fX + fW, fY + fH), (0, 0, 255), 2)
+
+    t2 = time.time()
+    if t2 - t1 >= 1:
+        fps = f
+        f = 0
+        t1 = time.time()
+    else:
+        f += 1
+
+    try:
+        cv2.putText(frame, 'FPS: ' + str(fps), (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
+    except:
+        pass
+
     print(fists, type(fists))
     if not type(fists) == tuple and fists.any():
         fist_counter += 1
@@ -94,7 +113,9 @@ while True:
         is_browser_active = browser.is_active()
         if is_browser_active is not None and is_browser_active:
             browser.close()
+    cv2.imshow('Hand Detector', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
-        pass
 camera.release()
 cv2.destroyAllWindows()

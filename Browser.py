@@ -23,6 +23,7 @@ class Browser:
         else:
             pass
 
+
     def is_active(self):
         return self.__active
 
@@ -49,7 +50,14 @@ class Browser:
 
     def movement_detection(self,movement):
         if movement == "DX":
-            self.__browser.find_element_by_xpath("//*[@class='ytp-next-button ytp-button']").click()
-        else:
+            try:
+                self.__browser.find_elements_by_xpath("//paper-button[@id='button']//*[@id='text']")[8].click()
+            except:
+                pass
+            try:
+                self.__browser.find_element_by_xpath("//*[@class='ytp-next-button ytp-button']").click()
+            except:
+                self.__browser.execute_script("window.history.go(1)")
+        elif movement == "SX":
             self.__browser.execute_script("window.history.go(-1)")
-        time.sleep(1)
+        #time.sleep(1)
