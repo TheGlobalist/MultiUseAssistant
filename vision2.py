@@ -7,12 +7,12 @@ def load_model():
     print('Loading hand detector...')
     detection_graph = tf.Graph()
     with detection_graph.as_default():
-        od_graph_def = tf.GraphDef()
-        with tf.gfile.GFile('models/model.pb', 'rb') as fid:
+        od_graph_def = tf.compat.v1.GraphDef()
+        with tf.io.gfile.GFile('models/model.pb', 'rb') as fid:
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
-        sess = tf.Session(graph=detection_graph)
+        sess = tf.compat.v1.Session(graph=detection_graph)
     print("Hand detector loaded.")
     return detection_graph, sess
 
@@ -49,9 +49,8 @@ def draw_box_on_image(num_hands_detect, score_thresh, scores, boxes, im_width, i
             p1 = (int(left), int(top))
             p2 = (int(right), int(bottom))
             cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
-            if k == 0:
-                a.append((p1[0] + p2[0]) // 2)
-                a.append((p1[1] + p2[1]) // 2)
+            if k <= 1:
+                a.append([(p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2])
             k += 1
 
             #cv2.circle(image_np, ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), 3, (255, 0, 0))
@@ -69,7 +68,7 @@ def check_movement(sequence, frame, distance=30, y_limit=20):
         cv2.putText(frame, 'Destra', (400, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
 detector, sess = load_model()
-fist_detector = cv2.CascadeClassifier('models/fist.xml')
+#fist_detector = cv2.CascadeClassifier('models/fist.xml')
 
 threshold = 0.2
 num_hands_detect = 2
@@ -82,6 +81,7 @@ im_width, im_height = (camera.get(3), camera.get(4))
 t1 = time.time()
 f = 0
 c = 0
+s = 0
 seq = []
 FRAMES = 4
 
@@ -95,22 +95,29 @@ while True:
     center = draw_box_on_image(num_hands_detect, threshold, scores, boxes, im_width, im_height, frame)
 
     if center:
-        c = 0
-        seq.append(center)
-        if len(seq) == FRAMES:
-            check_movement(seq, frame)
-            seq.pop(0)
+        if len(center) == 1:
+            s = 0
+            c = 0
+            seq.append(center[0])
+            if len(seq) == FRAMES:
+                check_movement(seq, frame)
+                seq.pop(0)
+        else:
+            s += 1
+            if s >= 5:
+                cv2.putText(frame, 'CHIUDI!', (400, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
     else:
         c += 1
         if c == 3:
             seq = []
+            s = 0
 
-    # fists detection
+    '''# fists detection
     fists = fist_detector.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
                                            flags=cv2.CASCADE_SCALE_IMAGE)
 
     for fX, fY, fW, fH in fists:
-        cv2.rectangle(frame, (fX, fY), (fX + fW, fY + fH), (0, 0, 255), 2)
+        cv2.rectangle(frame, (fX, fY), (fX + fW, fY + fH), (0, 0, 255), 2)'''
 
     t2 = time.time()
     if t2 - t1 >= 1:
@@ -132,4 +139,3 @@ while True:
 
 camera.release()
 cv2.destroyAllWindows()
-
