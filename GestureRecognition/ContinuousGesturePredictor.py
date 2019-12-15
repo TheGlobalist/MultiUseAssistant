@@ -9,17 +9,16 @@ class GestureRecognitor:
     def __init__(self):
         pass
 
-
     def load_model(self):
         print('Loading hand detector...')
         detection_graph = tf.Graph()
         with detection_graph.as_default():
-            od_graph_def = tf.GraphDef()
-            with tf.gfile.GFile('models/model.pb', 'rb') as fid:
+            od_graph_def = tf.compat.v1.GraphDef()
+            with tf.io.gfile.GFile('models/model.pb', 'rb') as fid:
                 serialized_graph = fid.read()
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
-            sess = tf.Session(graph=detection_graph)
+            sess = tf.compat.v1.Session(graph=detection_graph)
         print("Hand detector loaded.")
         return detection_graph, sess
 
@@ -78,9 +77,8 @@ class GestureRecognitor:
                 p1 = (int(left), int(top))
                 p2 = (int(right), int(bottom))
                 cv2.rectangle(image_np, p1, p2, (77, 255, 9), 3, 1)
-                if k == 0:
-                    a.append((p1[0] + p2[0]) // 2)
-                    a.append((p1[1] + p2[1]) // 2)
+                if k <= 1:
+                    a.append([(p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2])
                 k += 1
 
                 # cv2.circle(image_np, ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2), 3, (255, 0, 0))

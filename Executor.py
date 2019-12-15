@@ -15,24 +15,25 @@ browser = Browser()
 open_cv_wrapper = GestureRecognitor()
 
 detector, sess = open_cv_wrapper.load_model()
-fist_detector = cv2.CascadeClassifier('models/fist.xml')
 
 threshold = 0.2
-num_hands_detect = 1
+num_hands_detect = 2
 f = 0
 camera = cv2.VideoCapture(0)
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, 500)
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 500)
 im_width, im_height = (camera.get(3), camera.get(4))
 fist_counter = 0
 c = 0
+s = 0
 t1 = time.time()
 seq = []
 speech_engine.set_speed(175)
-speech_engine.say(
-    "Buongiorno e benvenuto in emGimBot! Prossimamente potrai anche chiedermi come funziono con 'Aiuto'. Intanto, chiedimi una canzone da riprodurre")
+speech_engine.say("Benvenuto in emGiBot!")
 while True:
     if not browser.is_active():
-        #sentence = sr.recognize
-        sentence = "Dammi le ultime notizie"
+        #sentence = sr.recognize()
+        sentence = "Riproduci Orphans dei Coldplay"
         if not sentence == "":
             dizionario_confidenza = NLU.predictIntention(sentence)
             if dizionario_confidenza['intento'] == 'musica':
@@ -52,6 +53,7 @@ while True:
                     speech_engine.say("Fonte: " + notizia['source']['name'])
                     time.sleep(1)
                     speech_engine.say(notizia['title'])
+                    time.sleep(1)
                 speech_engine.set_speed(200)
                 continue
 
@@ -71,24 +73,29 @@ while True:
     # draw bounding boxes on frame
     center = open_cv_wrapper.draw_box_on_image(num_hands_detect, threshold, scores, boxes, im_width, im_height, frame)
     if center:
-        c = 0
-        seq.append(center)
-        if len(seq) == 5:
-            movimento = open_cv_wrapper.check_movement(seq, frame)
-            print(movimento)
-            browser.movement_detection(movimento)
-            seq.pop(0)
+        if len(center) == 1:
+            s = 0
+            c = 0
+            seq.append(center[0])
+            if len(seq) == 5:
+                movimento = open_cv_wrapper.check_movement(seq, frame)
+                print(movimento)
+                browser.movement_detection(movimento)
+                seq.pop(0)
         else:
-            c += 1
-            if c == 3:
-                seq = []
+            s += 1
+            if s >= 5:
+                is_browser_active = browser.is_active()
+                if is_browser_active is not None and is_browser_active:
+                    browser.close()
+                    s = 0
+                    continue
+    else:
+        c += 1
+        if c == 3:
+            seq = []
+            s = 0
 
-    # fists detection
-    fists = fist_detector.detectMultiScale(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
-                                           flags=cv2.CASCADE_SCALE_IMAGE)
-
-    for fX, fY, fW, fH in fists:
-        cv2.rectangle(frame, (fX, fY), (fX + fW, fY + fH), (0, 0, 255), 2)
 
     t2 = time.time()
     if t2 - t1 >= 1:
@@ -103,16 +110,6 @@ while True:
     except:
         pass
 
-    print(fists, type(fists))
-    if not type(fists) == tuple and fists.any():
-        fist_counter += 1
-    else:
-        fist_counter = 0
-    if fist_counter >= 5:
-        print("PUGNO")
-        is_browser_active = browser.is_active()
-        if is_browser_active is not None and is_browser_active:
-            browser.close()
     cv2.imshow('Hand Detector', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

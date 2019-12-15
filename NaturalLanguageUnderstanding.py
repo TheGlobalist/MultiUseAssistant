@@ -1,14 +1,19 @@
 from rasa.nlu.training_data import load_data
 from rasa.nlu.config import RasaNLUModelConfig
 from rasa.nlu.model import Trainer
+from rasa.nlu.model import Interpreter
 from rasa.nlu import config
 
 class NaturalLanguageUnderstandingModule:
     def __init__(self):
-        training_data = load_data("./data/nlu.md")
-        trainer = Trainer(config.load("config.yml"))
-        self.interpreter = trainer.train(training_data)
-        model_directory = trainer.persist("./models/nlu", fixed_model_name="current")
+        try:
+            test = Interpreter.load("./models/nlu/current")
+            self.interpreter = test
+        except Exception:
+            training_data = load_data("./data/nlu.md")
+            trainer = Trainer(config.load("config.yml"))
+            self.interpreter = trainer.train(training_data)
+            model_directory = trainer.persist("./models/nlu", fixed_model_name="current")
         self.music_verbs = ['Riproduci', 'Suona', 'Fai partire', 'Avvia']
 
     def predictIntention(self, sentence):
