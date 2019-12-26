@@ -1,7 +1,6 @@
 import numpy as np
 from PIL import Image
 import cv2
-from .DNNGesture import DNN4GestureRecognition
 import imutils
 import tensorflow as tf
 
