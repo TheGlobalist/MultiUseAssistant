@@ -1,10 +1,5 @@
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
 import os
 import time
 from os.path import join
@@ -18,7 +13,9 @@ class Browser:
 
     def __initBrowser(self):
         if not hasattr(self,"__browser") or self.__browser is None:
-            self.__browser = webdriver.Chrome(executable_path=self.__pathForDriver)
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")
+            self.__browser = webdriver.Chrome(executable_path=self.__pathForDriver, chrome_options=chrome_options)
             self.__active = True
         else:
             pass
