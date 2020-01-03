@@ -29,7 +29,7 @@ s = 0
 t1 = time.time()
 seq = []
 speech_engine.set_speed(175)
-speech_engine.say("Benvenuto in emGiBot!")
+speech_engine.say("Benvenuto in emGiBot! Se non sai cosa fare, chiedimi come funziono o semplicemente Aiuto!")
 while True:
     if not browser.is_active():
         #sentence = sr.recognize()
