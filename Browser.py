@@ -31,11 +31,16 @@ class Browser:
             if lookfor in files:
                 return join(root, lookfor)
 
-    def navigate_music(self, analyzedString):
+    def navigate_music(self, analyzedString, speech_engine):
         if not hasattr(self,"__browser") or self.__browser is None:
+            print("Init browser")
             self.__initBrowser()
+        print("Cerco...")
         self.__browser.get("https://www.youtube.com/results?search_query="+analyzedString)
         time.sleep(1)
+        speech_engine.say("Riproduco " + analyzedString.replace("+", " "))
+        time.sleep(1)
+        print("Avvio...")
         #TODO questo è l'Xpath "//ytd-video-renderer"[0]
         self.__browser.find_element_by_xpath("//ytd-video-renderer").click()
 

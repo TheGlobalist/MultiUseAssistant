@@ -32,33 +32,44 @@ speech_engine.set_speed(175)
 speech_engine.say("Benvenuto in emGiBot! Se non sai cosa fare, chiedimi come funziono o semplicemente Aiuto!")
 while True:
     if not browser.is_active():
-        #sentence = sr.recognize()
-        sentence = "Riproduci Orphans dei Coldplay"
+        print("In ascolto...")
+        sentence = sr.recognize()
+        #sentence = "Riproduci Orphans dei Coldplay"
         if not sentence == "":
+            print("Not empty")
             dizionario_confidenza = NLU.predictIntention(sentence)
+            print("Predetto ---> " + dizionario_confidenza['intento'])
             if dizionario_confidenza['intento'] == 'musica':
+                print("musica")
                 sentence = NLU.format_query_uri(sentence)
-                browser.navigate_music(sentence)
+                speech_engine.say("Un secondo...")
+                print("requested --> " +sentence )
+                browser.navigate_music(sentence, speech_engine)
             if dizionario_confidenza['intento'] == 'aiuto':
+                print("aiuto")
                 speech_engine.say(
                     "Sono un assistente vocale a cui puoi chiedere le seguenti cose: musica da riprodurre, le ultime notizie, il meteo e come funziono! Inoltre supporto anche le gesture! Sono forte, no?")
                 continue
             if dizionario_confidenza['intento'] == 'notizie':
+                print("notizie")
                 speech_engine.set_speed(175)  # Meglio rallentarlo
                 notizie = requests.get(
                     'https://newsapi.org/v2/top-headlines?country=it&apiKey=f896205045cc40cb947d864b5e2df8f9')
                 notizie = json.loads(notizie.text)['articles'][0:5]
+                print("Leggo le notizie")
                 speech_engine.say("Ti leggo i titoli delle ultime 5 notizie!")
                 for notizia in notizie:
                     speech_engine.say("Fonte: " + notizia['source']['name'])
                     time.sleep(1)
+                    print("Letta --> " + notizia['title'])
                     speech_engine.say(notizia['title'])
                     time.sleep(1)
                 speech_engine.set_speed(200)
                 continue
+        continue
 
     ########################## OPENCV PART ##########################################
-
+    print("OpenCV")
     # Catturo un'istantanea dalla webcam
     (grabbed, frame) = camera.read()
     # Faccio resize dell'immagine
