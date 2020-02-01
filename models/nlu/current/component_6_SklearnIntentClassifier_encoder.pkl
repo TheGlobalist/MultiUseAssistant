@@ -1,1 +1,0 @@
-{"dtype": "<U16", "py/object": "numpy.ndarray", "values": ["calendario", "funzionamentoBot", "informazione", "musica", "ringraziamento", "saluto"]}
